@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Type play</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LADDER-GEN | MEDIA ENGINE</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+        :root {
+            --bg-sidebar: #ffffff; 
+            --sidebar-width: 280px;
+            --border-color: #e5e5e5;
+            --text-main: #111111;
+            --text-secondary: #999999;
+            --font-main: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            margin: 0; background: #eee; color: var(--text-main); 
+            font-family: var(--font-main); display: flex; 
+            height: 100vh; overflow: hidden; cursor: default;
+        }
+
+        .sidebar { 
+            width: var(--sidebar-width); background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color); display: flex;
+            flex-direction: column; padding: 30px 24px; flex-shrink: 0;
+            z-index: 10; overflow-y: auto; box-shadow: none !important;
+        }
+
+        .group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+
+        .main-content {
+            flex-grow: 1; height: 100vh; display: flex;
+            align-items: center; justify-content: center; background-color: #d0d0d0;
+        }
+
+        canvas { 
+            display: block; width: auto; height: 80vh; 
+            aspect-ratio: 3 / 4; background: #fff;
+            box-shadow: none !important; border: none !important;
+            object-fit: contain;
+        }
+
+        .item { display: flex; flex-direction: column; gap: 4px; }
+        .label-row { display: flex; justify-content: space-between; align-items: center; }
+
+        label { 
+            font-size: 9px; color: var(--text-secondary); 
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 300; 
+        }
+
+        .font-icon-btn { display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-secondary); }
+        .font-icon-btn svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 2px; }
+        .font-icon-btn span { font-size: 9px; font-weight: 300; text-transform: uppercase; letter-spacing: 1px; }
+
+        #fontNameContainer { display:none; align-items:center; gap:6px; font-size:9px; color:var(--text-main); font-weight:300; }
+        #fontNameDisplay { text-transform:uppercase; letter-spacing:1px; max-width:85px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        #clearFontBtn { cursor:pointer; color:var(--text-secondary); font-size:11px; padding: 0 2px; }
+
+        .color-custom-group { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 2px; }
+        .color-item { display: flex; align-items: center; gap: 8px; }
+        .color-item span { font-size: 11px; font-weight: 900; color: #555; }
+        .color-item input[type="color"] {
+            -webkit-appearance: none; border: 1px solid #888;
+            width: 80px; height: 24px; background: none; cursor: pointer; padding: 0;
+        }
+        .color-item input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-item input[type="color"]::-webkit-color-swatch { border: none; }
+        .color-item input[type="color"]::-moz-color-swatch { border: none; }
+
+        .upload-zone { border: 1px dashed #ccc; padding: 12px; text-align: center; cursor: pointer; position: relative; }
+        .upload-zone span { font-size: 10px; color: #666; font-weight: bold; display: flex; align-items: center; gap: 6px; justify-content: center; }
+
+        .btn-clear { font-size: 8px; color: #999; cursor: pointer; text-align: center; margin-top: 2px; font-weight: 300; }
+
+        textarea {
+            background: transparent; border: 1px solid #ddd;
+            color: #000; padding: 10px 0 16px 0; font-size: 16px;
+            font-weight: 700; outline: none; border-width: 0 0 1px 0;
+            resize: none; line-height: 1.5; overflow: hidden;
+            font-family: inherit; letter-spacing: 0.5px; min-height: 50px;
+        }
+
+        input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; height: 14px; cursor: pointer; }
+        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 1px; background: #ccc; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 10px; width: 10px; background: #000; margin-top: -4.5px; border-radius: 0; }
+        input[type="range"]::-moz-range-thumb { height: 10px; width: 10px; background: #000; border: none; border-radius: 0; }
+
+        button { cursor: pointer; padding: 12px; background: #000; border: none; color: #fff; font-size: 10px; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; }
+
+        .download-group { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 2px; }
+        .download-group button { padding: 8px; font-size: 8px; background: #fff; color: #000; border: 1px solid #000; transition: all 0.2s; }
+        .download-group button:hover { background: #000; color: #fff; }
+
+        .info { margin-top: auto; font-size: 8px; color: #bbbbbb; text-transform: uppercase; font-weight: 200; letter-spacing: 1.5px; -webkit-font-smoothing: antialiased; }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="group">
+        <div class="item">
+            <label>媒体上传 MEDIA</label>
+            <div class="upload-zone" id="dropZone">
+                <span id="uploadStatus">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14M5 10l7-7 7 7M5 21h14"/></svg>
+                    UPLOAD IMAGE
+                </span>
+                <input type="file" id="mediaUpload" accept="image/*,video/*,.svg,.glb" style="position:absolute; width:100%; height:100%; opacity:0; cursor:pointer; left:0; top:0;">
+            </div>
+            <div class="btn-clear" id="clearMedia" style="display:none;">清除媒体并返回文本</div>
+        </div>
+        <div class="item">
+            <div class="label-row">
+                <label>文本内容 TEXT</label>
+                <label for="fontUpload" class="font-icon-btn" id="fontIconBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v13M7 8l5-5 5 5M5 20h14"/>
+                    </svg>
+                    <span>Font</span>
+                </label>
+                <div id="fontNameContainer">
+                    <span id="fontNameDisplay"></span>
+                    <span id="clearFontBtn">✕</span>
+                </div>
+                <input type="file" id="fontUpload" accept=".ttf,.otf" style="display:none;">
+            </div>
+            <textarea id="textInput" rows="1">2026
+DESIGN</textarea>
+        </div>
+    </div>
+    <div class="group">
+        <div class="item">
+            <label>色彩自定义 COLORS</label>
+            <div class="color-custom-group">
+                <div class="color-item"><span>BG</span><input type="color" id="bgColor" value="#ffffff"></div>
+                <div class="color-item"><span>FG</span><input type="color" id="fgColor" value="#111111"></div>
+            </div>
+        </div>
+    </div>
+    <div class="group">
+        <div class="item"><label>字间距 LETTER SPACING</label><input type="range" id="letterSpacing" min="-80" max="100" value="0"></div>
+        <div class="item"><label>行间距 LINE SPACING</label><input type="range" id="lineSpacing" min="5" max="30" value="11"></div>
+        <div class="item"><label>主体识别 RECOGNITION</label><input type="range" id="recognition" min="1" max="200" value="100"></div>
+        <div class="item"><label>线条密度 DENSITY</label><input type="range" id="cols" min="20" max="250" value="100"></div>
+        <div class="item"><label>垂直分辨率 RESOLUTION</label><input type="range" id="rows" min="10" max="250" value="120"></div>
+        <div class="item"><label>最大宽度 WIDTH</label><input type="range" id="maxWidth" min="1" max="25" value="8"></div>
+    </div>
+    <div class="group">
+        <div class="item">
+            <div class="label-row"><label>导出文件 DOWNLOAD</label><div class="font-icon-btn" id="resetAllBtn"><span>RESET</span></div></div>
+            <div class="download-group">
+                <button onclick="downloadImg('jpg')">JPG</button>
+                <button onclick="downloadImg('png')">PNG</button>
+                <button onclick="downloadSVG()">SVG</button>
+                <button onclick="downloadMP4()" id="mp4Btn">MP4</button>
+            </div>
+        </div>
+    </div>
+    <div class="info">COPYRIGHT © 2026 TYPE PLAY. ALL RIGHTS RESERVED.</div>
+</aside>
+<main class="main-content" id="canvasContainer">
+    <canvas id="canvas" width="900" height="1200"></canvas>
+</main>
+<video id="hiddenVideo" loop muted playsinline style="display:none;"></video>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const textInput = document.getElementById('textInput');
+    const fontUpload = document.getElementById('fontUpload');
+    const mediaUpload = document.getElementById('mediaUpload');
+    const hiddenVideo = document.getElementById('hiddenVideo');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const clearBtn = document.getElementById('clearMedia');
+    const resetAllBtn = document.getElementById('resetAllBtn');
+    
+    let currentScale = 1.0; 
+    let activeMedia = null; 
+    let mediaType = 'text'; 
+    let canvasDim = { w: 900, h: 1200 }; 
+    let customFontFamily = 'Arial'; 
+    let customFontFace = null; 
+
+    let threeScene, threeCamera, threeRenderer, gltfModel;
+    const glbCanvas = document.createElement('canvas');
+    let baseCameraZ = 10; 
+    let densityCache = null; 
+    let isRendering = false;
+
+    function autoResizeTextarea() {
+        textInput.style.height = 'auto'; 
+        textInput.style.height = (textInput.scrollHeight) + 'px';
+    }
+
+    function coreDraw(targetCtx, w, h, scale, exportDpi = 1, forceResample = false, skipBG = false) {
+        const numCols = Math.max(10, Math.floor(parseInt(document.getElementById('cols').value) * (w / (1200 * exportDpi))));
+        const numRows = Math.max(10, Math.floor(parseInt(document.getElementById('rows').value) * (h / (800 * exportDpi))));
+        const maxWidth = (parseInt(document.getElementById('maxWidth').value) * exportDpi);
+        const recognitionVal = parseInt(document.getElementById('recognition').value) / 100;
+        const fgColor = document.getElementById('fgColor').value;
+        const bgColor = document.getElementById('bgColor').value;
+
+        if (!skipBG) {
+            targetCtx.fillStyle = bgColor; targetCtx.fillRect(0, 0, w, h);
+        } else {
+            targetCtx.clearRect(0, 0, w, h);
+        }
+
+        let grid = [];
+        if (!forceResample && densityCache && densityCache.cols === numCols && densityCache.rows === numRows) {
+            grid = densityCache.data;
+        } else {
+            const memCanvas = document.createElement('canvas'); 
+            const mctx = memCanvas.getContext('2d', { willReadFrequently: true });
+            memCanvas.width = w; memCanvas.height = h; 
+            mctx.fillStyle = "white"; mctx.fillRect(0, 0, w, h);
+
+            if (mediaType === 'text') {
+                const fontSize = Math.min(w, h) * 0.18;
+                const lineHeight = fontSize * (parseInt(document.getElementById('lineSpacing').value) / 10);
+                mctx.fillStyle = "black"; mctx.font = `900 ${fontSize}px "${customFontFamily}", sans-serif`;
+                mctx.textAlign = "center"; mctx.textBaseline = "middle";
+                const spacing = parseInt(document.getElementById('letterSpacing').value) * exportDpi;
+                if ('letterSpacing' in mctx) mctx.letterSpacing = `${spacing}px`;
+                const lines = textInput.value.split('\n');
+                const startY = (h - (lines.length - 1) * lineHeight) / 2;
+                lines.forEach((line, i) => mctx.fillText(line, w / 2, startY + (i * lineHeight)));
+            } else if (mediaType === 'glb' && threeRenderer) {
+                threeRenderer.setSize(w, h, false); threeCamera.aspect = w / h;
+                threeCamera.position.z = threeCamera.aspect < 1 ? baseCameraZ / threeCamera.aspect : baseCameraZ;
+                threeCamera.updateProjectionMatrix(); threeRenderer.render(threeScene, threeCamera);
+                mctx.drawImage(glbCanvas, 0, 0, w, h);
+            } else if (activeMedia) {
+                const sW = activeMedia.videoWidth || activeMedia.width || 1;
+                const sH = activeMedia.videoHeight || activeMedia.height || 1;
+                const fr = Math.min(w / sW, h / sH); const dW = sW * fr; const dH = sH * fr;
+                mctx.drawImage(activeMedia, (w - dW) / 2, (h - dH) / 2, dW, dH);
+            }
+
+            const imgData = mctx.getImageData(0, 0, w, h).data;
+            const cellW = w / numCols; const cellH = h / numRows;
+            const step = Math.max(1, Math.floor(2 * exportDpi));
+
+            for (let i = 0; i < numCols; i++) {
+                const cx = i * cellW + cellW / 2;
+                for (let j = 0; j < numRows; j++) {
+                    const sy_pos = j * cellH; let bt = 0, sc = 0;
+                    for (let sy = 0; sy < cellH; sy += step) {
+                        for (let sx = -cellW/2; sx < cellW/2; sx += step) {
+                            const px = Math.floor(cx + sx), py = Math.floor(sy_pos + sy);
+                            if (px >= 0 && px < w && py >= 0 && py < h) {
+                                const idx = (py * w + px) * 4; bt += (imgData[idx] + imgData[idx+1] + imgData[idx+2]) / 3; sc++;
+                            }
+                        }
+                    }
+                    grid.push({ cx, sy_pos, d: (1 - (bt / (sc || 1) / 255)) });
+                }
+            }
+            if(!forceResample) densityCache = { data: grid, cols: numCols, rows: numRows };
+        }
+
+        targetCtx.save(); 
+        targetCtx.translate(w / 2, h / 2); targetCtx.scale(scale, scale); targetCtx.translate(-w / 2, -h / 2);
+        targetCtx.fillStyle = fgColor;
+        const cH = h / numRows;
+        grid.forEach(cell => {
+            const d = cell.d * recognitionVal;
+            if (d > 0.05) {
+                let rw = 1.2 * exportDpi; if (d > 0.8) rw = maxWidth; else if (d > 0.5) rw = maxWidth * 0.6; else if (d > 0.2) rw = maxWidth * 0.3;
+                targetCtx.fillRect(cell.cx - rw / 2, cell.sy_pos, rw, cH + (0.5 * exportDpi));
+            }
+        });
+        targetCtx.restore();
+        return grid;
+    }
+
+    // 修改：增加 sync 参数控制渲染是否同步立即执行，跳过 requestAnimationFrame 以达到秒现效果
+    function render(forceResample = true, sync = false) {
+        if (isRendering && !sync) return;
+        isRendering = true;
+        const renderTask = () => {
+            autoResizeTextarea();
+            canvas.width = canvasDim.w; canvas.height = canvasDim.h;
+            coreDraw(ctx, canvas.width, canvas.height, currentScale, 1, forceResample, false);
+            isRendering = false;
+        };
+        if (sync) {
+            renderTask(); // 瞬间立即渲染
+        } else {
+            window.requestAnimationFrame(renderTask);
+        }
+    }
+
+    document.querySelectorAll('input, textarea').forEach(el => {
+        el.addEventListener('input', () => render(el.type !== 'color'));
+    });
+
+    document.getElementById('canvasContainer').addEventListener('wheel', (e) => {
+        e.preventDefault(); currentScale = Math.min(Math.max(0.1, currentScale + (e.deltaY > 0 ? -0.05 : 0.05)), 8);
+        render(false);
+    }, { passive: false });
+
+    resetAllBtn.onclick = () => {
+        textInput.value = "2026\nDESIGN";
+        document.getElementById('bgColor').value = "#ffffff";
+        document.getElementById('fgColor').value = "#111111";
+        document.getElementById('letterSpacing').value = 0;
+        document.getElementById('lineSpacing').value = 11;
+        document.getElementById('recognition').value = 100;
+        document.getElementById('cols').value = 100;
+        document.getElementById('rows').value = 120;
+        document.getElementById('maxWidth').value = 8;
+        currentScale = 1.0; activeMedia = null; mediaType = 'text'; customFontFamily = 'Arial';
+        if (customFontFace) { document.fonts.delete(customFontFace); customFontFace = null; }
+        fontUpload.value = ''; mediaUpload.value = ''; densityCache = null;
+        hiddenVideo.pause(); hiddenVideo.src = "";
+        if(threeScene && gltfModel) { threeScene.remove(gltfModel); gltfModel = null; }
+        uploadStatus.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14M5 10l7-7 7 7M5 21h14"/></svg> UPLOAD IMAGE';
+        clearBtn.style.display = 'none';
+        document.getElementById('fontNameContainer').style.display = 'none';
+        document.getElementById('fontIconBtn').style.display = 'flex';
+        textInput.style.fontFamily = 'Arial'; autoResizeTextarea(); render(true);
+    };
+
+    mediaUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0]; if (!file) return;
+        densityCache = null; 
+        const url = URL.createObjectURL(file);
+        if (file.name.toLowerCase().endsWith('.glb')) {
+            mediaType = 'glb'; if(!threeScene) {
+                threeScene = new THREE.Scene(); threeScene.background = new THREE.Color(0xffffff);
+                threeCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+                threeRenderer = new THREE.WebGLRenderer({ canvas: glbCanvas, antialias: true, alpha: true });
+                threeScene.add(new THREE.AmbientLight(0xffffff, 1.0));
+            }
+            new THREE.GLTFLoader().load(url, (gltf) => {
+                if (gltfModel) threeScene.remove(gltfModel); gltfModel = gltf.scene;
+                const box = new THREE.Box3().setFromObject(gltfModel);
+                gltfModel.position.sub(box.getCenter(new THREE.Vector3()));
+                baseCameraZ = Math.max(box.getSize(new THREE.Vector3()).y, box.getSize(new THREE.Vector3()).x) * 1.5;
+                threeScene.add(gltfModel); render(true);
+            });
+        } else if (file.type.startsWith('video/')) {
+            mediaType = 'video'; hiddenVideo.src = url; 
+            hiddenVideo.onloadedmetadata = () => render(true);
+            hiddenVideo.play().catch(e=>{}); activeMedia = hiddenVideo;
+            const videoLoop = () => { if(mediaType==='video'){ render(true); requestAnimationFrame(videoLoop); } };
+            videoLoop();
+        } else {
+            mediaType = 'image'; const img = new Image(); img.onload = () => { render(true); URL.revokeObjectURL(url); }; img.src = url; activeMedia = img;
+        }
+        uploadStatus.textContent = file.name.toUpperCase(); clearBtn.style.display = 'block';
+    });
+
+    fontUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0]; if (!file) return;
+        const fontName = 'CustomFont_' + Date.now();
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const fontFace = new FontFace(fontName, event.target.result);
+            fontFace.load().then((loadedFace) => {
+                if (customFontFace) document.fonts.delete(customFontFace);
+                customFontFace = loadedFace;
+                document.fonts.add(loadedFace); customFontFamily = fontName; textInput.style.fontFamily = fontName;
+                document.getElementById('fontNameDisplay').textContent = file.name.split('.')[0]; 
+                document.getElementById('fontNameContainer').style.display = 'flex';
+                document.getElementById('fontIconBtn').style.display = 'none'; 
+                densityCache = null;
+                autoResizeTextarea(); render(true);
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    document.getElementById('clearFontBtn').onclick = () => {
+        if (customFontFace) { document.fonts.delete(customFontFace); customFontFace = null; }
+        fontUpload.value = ''; 
+        densityCache = null;
+        customFontFamily = 'Arial'; textInput.style.fontFamily = 'Arial';
+        document.getElementById('fontNameContainer').style.display = 'none'; 
+        document.getElementById('fontIconBtn').style.display = 'flex'; 
+        autoResizeTextarea(); render(true);
+    };
+
+    clearBtn.onclick = () => { 
+        mediaType = 'text'; activeMedia = null; clearBtn.style.display = 'none'; 
+        uploadStatus.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14M5 10l7-7 7 7M5 21h14"/></svg> UPLOAD IMAGE'; 
+        mediaUpload.value = ''; densityCache = null; render(true); 
+    };
+
+    // 精度优化：提升至 A2 印刷级别 (4961 x 7016)
+    function downloadImg(format) {
+        const targetW = 4961; const targetH = 7016; 
+        const dpiScale = targetW / 900;
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = targetW; exportCanvas.height = targetH;
+        const eCtx = exportCanvas.getContext('2d');
+        eCtx.imageSmoothingEnabled = true;
+        eCtx.imageSmoothingQuality = 'high';
+        const isPNG = (format === 'png');
+        coreDraw(eCtx, targetW, targetH, currentScale, dpiScale, true, isPNG);
+        const link = document.createElement('a'); link.download = `ladder-gen-ULTRA-HD.${format}`;
+        link.href = exportCanvas.toDataURL(isPNG ? 'image/png' : 'image/jpeg', 0.95);
+        link.click();
+    }
+
+    // 性能优化：采用单一复合路径 (Compound Path) 确保 AI 秒开不卡顿
+    function downloadSVG() {
+        const numRows = parseInt(document.getElementById('rows').value);
+        const recognitionVal = parseInt(document.getElementById('recognition').value) / 100;
+        const fgColor = document.getElementById('fgColor').value;
+        const maxWidth = parseInt(document.getElementById('maxWidth').value);
+        const tempCtx = document.createElement('canvas').getContext('2d');
+        const grid = coreDraw(tempCtx, canvasDim.w, canvasDim.h, currentScale, 1, true, true);
+
+        let pathData = "";
+        const cellH = canvasDim.h / numRows;
+        grid.forEach(cell => {
+            const d = cell.d * recognitionVal;
+            if (d > 0.05) {
+                let rw = 1.2; if (d > 0.8) rw = maxWidth; else if (d > 0.5) rw = maxWidth * 0.6; else if (d > 0.2) rw = maxWidth * 0.3;
+                const rx = cell.cx - rw/2;
+                const ry = cell.sy_pos;
+                const rh = cellH + 0.5;
+                // 使用 SVG Path 矩形命令合并所有图形为一个对象
+                pathData += `M${rx.toFixed(2)},${ry.toFixed(2)}h${rw.toFixed(2)}v${rh.toFixed(2)}h-${rw.toFixed(2)}z `;
+            }
+        });
+
+        let svg = `<?xml version="1.0" encoding="utf-8"?><svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="${canvasDim.w}" height="${canvasDim.h}" viewBox="0 0 ${canvasDim.w} ${canvasDim.h}">`;
+        svg += `<g transform="translate(${canvasDim.w/2},${canvasDim.h/2}) scale(${currentScale.toFixed(3)}) translate(${-canvasDim.w/2},${-canvasDim.h/2})">`;
+        svg += `<path d="${pathData}" fill="${fgColor}"/>`;
+        svg += `</g></svg>`; 
+        
+        const blob = new Blob([svg], {type: 'image/svg+xml;charset=utf-8'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); 
+        link.download = "ladder-gen-instant-ai.svg"; link.click();
+    }
+
+    async function downloadMP4() {
+        const btn = document.getElementById('mp4Btn'); 
+        const originalText = btn.textContent;
+        btn.disabled = true;
+
+        let duration = 5000; 
+        if (mediaType === 'video' && hiddenVideo.duration) {
+            duration = hiddenVideo.duration * 1000;
+            hiddenVideo.currentTime = 0; await hiddenVideo.play();
+        }
+
+        const types = ['video/mp4;codecs=h264', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
+        const supportedType = types.find(t => MediaRecorder.isTypeSupported(t)) || 'video/webm';
+        const stream = canvas.captureStream(30); 
+        const recorder = new MediaRecorder(stream, { mimeType: supportedType, videoBitsPerSecond: 15000000 });
+        const chunks = []; 
+
+        let startTime = Date.now();
+        const progressTimer = setInterval(() => {
+            let elapsed = Date.now() - startTime;
+            let percent = Math.min(99, Math.floor((elapsed / duration) * 100));
+            btn.textContent = `REC ${percent}%`;
+        }, 100);
+
+        recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
+        recorder.onstop = () => {
+            clearInterval(progressTimer);
+            const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(chunks, { type: supportedType }));
+            link.download = `ladder-gen-hd.mp4`; link.click(); 
+            btn.disabled = false; btn.textContent = originalText;
+        };
+        recorder.start(); setTimeout(() => recorder.stop(), duration + 200); 
+    }
+
+    // 取消了 window.onload 避免等待无关资源导致白屏时间过长
+    // 直接立即执行且进行"无延时（sync=true）"的同步渲染，保证页面刷出瞬间字体就显示
+    autoResizeTextarea(); 
+    render(true, true);
+
+</script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
